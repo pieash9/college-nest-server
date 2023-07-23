@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fiktc6e.mongodb.net/?retryWrites=true&w=majority`; 
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fiktc6e.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -27,7 +27,17 @@ async function run() {
     // await client.connect();
 
     const collegeCollection = client.db("collegeNestDB").collection("colleges");
+    const userCollection = client.db("collegeNestDB").collection("users");
 
+    //post user  to server
+    app.post("/users", async (req, res) => {
+      const userInfo = req.body;
+      if (await userCollection.findOne({ email: userInfo.email })) {
+        return;
+      }
+      const result = await userCollection.insertOne(userInfo);
+      res.send(result);
+    });
     //get all college
     app.get("/colleges", async (req, res) => {
       const result = await collegeCollection.find().toArray();
