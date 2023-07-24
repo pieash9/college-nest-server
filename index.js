@@ -45,6 +45,26 @@ async function run() {
       res.send(result);
     });
 
+    //get single user data
+    app.get("/users/:email", async (req, res) => {
+      const userEmail = req.params.email;
+      const query = { email: userEmail };
+      const result = await userCollection.findOne(query);
+      res.send(result);
+    });
+
+    //update a user data
+    app.patch("/users/:email", async (req, res) => {
+      const userData = req.body;
+      const userEmail = req.params.email;
+      const query = { email: userEmail };
+      const updateDoc = {
+        $set: { ...userData },
+      };
+      const result = await userCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
     //post applied college
     app.post("/appliedCollege", async (req, res) => {
       const applicationData = req.body;
