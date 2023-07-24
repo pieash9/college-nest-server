@@ -35,6 +35,9 @@ async function run() {
       .db("collegeNestDB")
       .collection("feedbacks");
 
+    //creating search index for college name
+    await collegeCollection.createIndex({ collegeName: 1 });
+
     //post user  to server
     app.post("/users", async (req, res) => {
       const userInfo = req.body;
@@ -84,6 +87,21 @@ async function run() {
     app.get("/colleges", async (req, res) => {
       const result = await collegeCollection.find().toArray();
       res.send(result);
+    });
+
+    //get college data by college name
+    app.get("/colleges/search", async (req, res) => {
+      const collegeName = req.query.collegeName;
+      try {
+        const regex = new RegExp(collegeName, "i"); // Case-insensitive search
+        const result = await collegeCollection
+          .find({ collegeName: regex })
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal server error");
+      }
     });
 
     //get single college
